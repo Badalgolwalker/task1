@@ -1,5 +1,5 @@
 const express = require("express")
-const { Hompage,productupload,usersignup,productupdate,productdelete,productu,edit,usercreate,deleteSubcategory,updateSubcategory,getSubcategoriesByCategory,createSubcategory,deleteCategory,updateCategory,getAllCategories,createCategory,addCategory,SubCategory } = require("../controller/indexc")
+const { Hompage,productupload,usersignup,productupdate,productdelete,productu,edit,usercreate,addCategory, addSubcategory } = require("../controller/indexc")
 const router = express.Router()
 
 router.get("/",Hompage)
@@ -19,10 +19,8 @@ router.post("/productupdate/:id",productupdate)
 router.get("/productdelete/:id",productdelete)
 
 router.get("/edit/:id",edit)
-
-router.post("/add-category",addCategory)
-
-router.post("/sub-category/:id",SubCategory)
+router.post('/addcategory', addCategory);
+router.post('/addsubcategory', addSubcategory);
 
 
 

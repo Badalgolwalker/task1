@@ -57,23 +57,38 @@ const product = await productmodel.findByIdAndDelete({_id:req.params.id}).exec()
 res.json("delete successfully")
  }
 
- 
-exports.addCategory = async(req,res,next) =>{
+ exports.addCategory = async (req, res, next) => {
+  try {
+      const { name, description } = req.body;
 
-  const category = await new Category(req.body).save()
-  res.json(category)
-   }
-  
+      const category = await new Category({
+          name,
+          description
+      }).save();
 
-    
-exports. SubCategory= async(req,res,next) =>{
-const category = await Category.findById({_id:req.params.id}).exec()
-const SubCategory = await new subcategory({
-  categoryid:category._id,
-  subCategory:req.body.subCategory
-}).save()
-res.json(SubCategory)
+      res.json(category);
+  } catch (err) {
+      next(err);
+  }
+};
 
-   }
+exports.addSubcategory = async (req, res, next) => {
+  try {
+      const { categoryid, subCategory } = req.body;
+
+      const subccategory = await new subcategory({
+          categoryid: categoryid,
+          subCategory
+      }).save();
+
+      const category = await Category(categoryid).exec()
+      category.subcategories.push(subccategory._id)
+      category.save()
+
+      res.json(subccategory);
+  } catch (err) {
+      next(err);
+  }
+};
  
 
