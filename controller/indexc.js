@@ -2,6 +2,7 @@ const userModel = require("../models/usermodel")
 const Category = require("../models/categorymodel")
 const productmodel = require("../models/productmodel")
 const subcategory = require("../models/subcategory")
+const mongoose = require("mongoose")
 
 exports.Hompage = async(req,res,next) =>{
  const product = await productmodel.find().exec()
@@ -17,6 +18,15 @@ exports.usercreate = async(req,res,next) =>{
 exports.productu = async(req,res,next) =>{
  res.render("productupload")
  }
+
+ exports.Category = async(req,res,next) =>{
+  res.render("category")
+  }
+
+  exports.SubCategory = async(req,res,next) =>{
+    res.render("subcategory")
+    }
+   
  
 
 exports.usersignup = async(req,res,next) =>{
@@ -34,7 +44,7 @@ exports.edit = async(req,res,next) =>{
 
 exports.productupload = async(req,res,next) =>{
   const product = await new productmodel(req.body).save()
-  res.json(product)
+  res.redirect("/")
 }
 
 
@@ -54,16 +64,15 @@ exports.productupdate = async(req,res,next) =>{
 exports.productdelete = async(req,res,next) =>{
 
 const product = await productmodel.findByIdAndDelete({_id:req.params.id}).exec()
-res.json("delete successfully")
+res.redirect("/")
  }
 
  exports.addCategory = async (req, res, next) => {
   try {
-      const { name, description } = req.body;
+      const { name } = req.body;
 
       const category = await new Category({
           name,
-          description
       }).save();
 
       res.json(category);
@@ -74,18 +83,24 @@ res.json("delete successfully")
 
 exports.addSubcategory = async (req, res, next) => {
   try {
-      const { categoryid, subCategory } = req.body;
+    const { id, name } = req.body;
 
-      const subccategory = await new subcategory({
-          categoryid: categoryid,
-          subCategory
-      }).save();
+    // Convert id to ObjectId
+    const categoryIdObject =mongoose.Types.ObjectId(id);
 
-      const category = await Category(categoryid).exec()
-      category.subcategories.push(subccategory._id)
-      category.save()
+    const subCategory = await new subcategory({
+      categoryid: categoryIdObject,
+      name
+    }).save();
 
-      res.json(subccategory);
+    const category = await Category.findById(categoryIdObject);
+    if (!category) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+    category.subcategories.push(subCategory._id);
+    await category.save();
+
+    res.json(subCategory);
   } catch (err) {
       next(err);
   }
